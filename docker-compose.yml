@@ -7,8 +7,9 @@ services:
     links:
       - db-redis
       - db-mysql
+    platform: linux/amd64
     ports:
-      - "5000:5000"
+      - "8000:80"
     profiles:
       - dev
 

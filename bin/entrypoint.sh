@@ -2,7 +2,7 @@
 
 export PATH="/opt/site/.local/bin:$PATH"
 BASE_DIR="/opt/site/code"
-CMD="flask --app app run -h 0.0.0.0"
+CMD="flask --app app run -h 0.0.0.0 -p 80"
 
 sigterm() {
   echo "SIGTERM received"
