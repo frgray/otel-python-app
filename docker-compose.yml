@@ -10,16 +10,12 @@ services:
     platform: linux/amd64
     ports:
       - "5000:5000"
-    profiles:
-      - dev
+      - "8000:8000"
 
   db-redis:
     image: "redis:6.2-alpine"
     ports:
       - "6379:6379"
-    profiles:
-      - dev
-      - dependencies
 
   db-mysql:
     image: mysql:8
@@ -32,6 +28,3 @@ services:
       - "MYSQL_ROOT_PASSWORD=password"
     ports:
       - "3306:3306"
-    profiles:
-      - dev
-      - dependencies

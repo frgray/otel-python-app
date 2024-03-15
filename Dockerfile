@@ -29,6 +29,6 @@ WORKDIR /opt/site
 
 USER web
 
-EXPOSE 5000
+EXPOSE 5000 8000
 
 ENTRYPOINT ["/opt/site/bin/entrypoint.sh"]

@@ -2,7 +2,7 @@
 
 export PATH="/opt/site/.local/bin:$PATH"
 BASE_DIR="/opt/site/code"
-CMD="flask --app app run -h 0.0.0.0 -p 5000"
+CMD="flask --app app run -h 0.0.0.0 -p ${FLASK_PORT}"
 
 sigterm() {
   echo "SIGTERM received"
@@ -23,5 +23,6 @@ trap sigterm SIGTERM
 
 cd ${BASE_DIR} || exit 1
 
+echo "Running: ${CMD}"
 ${CMD}
 
