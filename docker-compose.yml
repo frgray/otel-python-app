@@ -1,0 +1,42 @@
+services:
+  hackweek:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - "FLASK_APP=app"
+      - "MYSQL_HOST=db-mysql"
+      - "MYSQL_USER=hackweek"
+      - "MYSQL_PASSWORD=password"
+      - "MYSQL_DATABASE=hackweek"
+      - "REDIS_URL=redis://db-redis:6379/0"
+    links:
+      - db-redis
+      - db-mysql
+    ports:
+      - "5000:5000"
+    profiles:
+      - dev
+
+  db-redis:
+    image: "redis:6.2-alpine"
+    ports:
+      - "6379:6379"
+    profiles:
+      - dev
+      - dependencies
+
+  db-mysql:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    environment:
+      - "MYSQL_PASSWORD=password"
+      - "MYSQL_USER=hackweek"
+      - "MYSQL_DATABASE=hackweek"
+      - "MYSQL_HOST=0.0.0.0"
+      - "MYSQL_ROOT_PASSWORD=password"
+    ports:
+      - "3306:3306"
+    profiles:
+      - dev
+      - dependencies
