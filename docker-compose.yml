@@ -3,13 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - "FLASK_APP=app"
-      - "MYSQL_HOST=db-mysql"
-      - "MYSQL_USER=hackweek"
-      - "MYSQL_PASSWORD=password"
-      - "MYSQL_DATABASE=hackweek"
-      - "REDIS_URL=redis://db-redis:6379/0"
+    env_file: docker-compose.env
     links:
       - db-redis
       - db-mysql
