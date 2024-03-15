@@ -44,22 +44,24 @@ def mysql_status():
 
 
 def redis_status():
+    s = {
+        "status": "OK"
+    }
     try:
         if os.environ.get("REDIS_URL", None) is not None:
             r = redis.from_url(url=os.environ["REDIS_URL"])
+            s["url"] = os.environ.get("REDIS_URL")
 
         elif os.environ.get("REDIS_HOST", None) is not None:
             r = redis.Redis(host=os.environ["REDIS_HOST"],
                             port=os.environ.get("REDIS_PORT", 6379),
                             db=os.environ.get("REDIS_DB", 0))
+            s["host"] = os.environ.get("REDIS_HOST")
+            s["port"] = os.environ.get("REDIS_PORT")
         else:
             return "REDIS_URL or REDIS_HOST is not set"
 
         if r.ping():
-            return {
-                "status": "OK",
-                "host": os.environ.get("REDIS_HOST", "localhost"),
-                "port": os.environ.get("REDIS_PORT", 6379)
-            }
+            return s
     except Exception as e:
         return f'CONNECTION FAILED: {e}'
