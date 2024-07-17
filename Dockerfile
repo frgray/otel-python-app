@@ -7,7 +7,7 @@ USER root
 # Install build dependencies / Add ssh fingerprints for trusted hosts and set permissions
 RUN /usr/bin/apt update \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC /usr/bin/apt install -y redis libdbi1 libdbd-mysql libmysql++-dev  \
-    python3-mysqldb pkg-config gcc
+    python3-mysqldb pkg-config gcc telnet iputils-ping netcat-traditional
 
 # Create web user / Create directories
 RUN /usr/sbin/useradd -r -d /opt/site -u 998 -s /bin/bash web -k /etc/skel -m -U \
@@ -29,6 +29,6 @@ WORKDIR /opt/site
 
 USER web
 
-EXPOSE 5000 8000
+EXPOSE 5000 8080
 
 ENTRYPOINT ["/opt/site/bin/entrypoint.sh"]

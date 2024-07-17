@@ -1,16 +1,25 @@
 services:
-  hackweek:
+  otel-python-app:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file: docker-compose.env
+    environment:
+      - FLASK_APP=app
+      - FLASK_PORT=8000
+      - MYSQL_HOST=localhost
+      - MYSQL_USER=hackweek
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=hackweek
+      - REDIS_URL=redis://localhost:6379/0
     links:
       - db-redis
       - db-mysql
     platform: linux/amd64
     ports:
       - "5000:5000"
-      - "8000:8000"
+      - "8080:8080"
+    profiles:
+      - dev
 
   db-redis:
     image: "redis:6.2-alpine"
@@ -18,13 +27,15 @@ services:
       - "6379:6379"
 
   db-mysql:
-    image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       - "MYSQL_PASSWORD=password"
       - "MYSQL_USER=hackweek"
       - "MYSQL_DATABASE=hackweek"
       - "MYSQL_HOST=0.0.0.0"
       - "MYSQL_ROOT_PASSWORD=password"
+    volumes:
+      - ./data/mysql:/var/lib/mysql
     ports:
       - "3306:3306"

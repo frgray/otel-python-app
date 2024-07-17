@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app
+  namespace: fgray-otel-python-app
+  labels:
+    app: otel-python-app
+    app.kubernetes.io/name: python-app
+spec:
+  template:
+    metadata:
+      labels:
+        app: otel-python-app
+        app.kubernetes.io/name: python-app
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "true"
+        instrumentation.opentelemetry.io/container-names: "python-app"
+        instrumentation.opentelemetry.io/python-app: "python-app"
+    spec:
+      containers:
+        - name: python-app
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=otel-python-app
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://grafana-k8s-monitoring-grafana-agent.grafana.svc.cluster.local:4318
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: http/protobuf
+            - name: OTEL_SERVICE_NAME
+              value: otel-python-app
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp
+            - name: OTEL_METRICS_EXPORTER
+              value: otlp
+            - name: OTEL_NODE_RESOURCE_DETECTORS
+              value: env,host,os,serviceinstance
+            - name: OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
+              value: "true"
+#     OTEL_EXPORTER_OTLP_ENDPOINT: "http://grafana-k8s-monitoring-grafana-agent.grafana.svc.cluster.local:4318"
+#     OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+#     OTEL_SERVICE_NAME: "fgray-otel-python-app"
+#     OTEL_TRACES_EXPORTER: "otlp"
+#     OTEL_METRICS_EXPORTER: "otlp"
+#     OTEL_NODE_RESOURCE_DETECTORS: "env,host,os,serviceinstance"

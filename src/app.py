@@ -1,15 +1,55 @@
 import json
-import os
-import redis
-import pymysql.cursors
-
 
 from flask import Flask
+from logging.config import dictConfig
+
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
+
+from .lib.redis import redis_status
+from .lib.mysql import mysql_status, populate_initial_data
+from .lib.users import UserController
+from .lib.util import serialize_users
+
+provider = TracerProvider()
+processor = BatchSpanProcessor(ConsoleSpanExporter())
+provider.add_span_processor(processor)
+
+# Sets the global default tracer provider
+trace.set_tracer_provider(provider)
+
+# Creates a tracer from the global tracer provider
+tracer = trace.get_tracer("otel-python-app")
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['wsgi']
+    }
+})
 
 app = Flask(__name__)
 
 
 @app.route("/")
+def index():
+    return 'hello '
+
+
+@app.route("/healthz")
 def status():
     result = {
         "mysql": mysql_status(),
@@ -18,50 +58,17 @@ def status():
     return json.dumps(result)
 
 
-def mysql_status():
-    mysql_host = os.environ.get("MYSQL_HOST", "localhost")
-    mysql_user = os.environ.get("MYSQL_USER", "hackweek")
-    mysql_password = os.environ.get("MYSQL_PASSWORD", "password")
-    mysql_db = os.environ.get("MYSQL_DB", "hackweek")
-    mysql_port = os.environ.get("MYSQL_PORT", 3306)
-    try:
-        connection = pymysql.connect(host=mysql_host,
-                                     user=mysql_user,
-                                     password=mysql_password,
-                                     db=mysql_db,
-                                     port=mysql_port,
-                                     cursorclass=pymysql.cursors.DictCursor)
-        if connection.open:
-            return {
-                "status": "OK",
-                "host": mysql_host,
-                "port": mysql_port,
-                "user": mysql_user,
-                "db": mysql_db,
-            }
-    except Exception as e:
-        return f'CONNECTION FAILED: {e}'
+@app.route("/users")
+def get_users():
+    ctlr = UserController(logger=app.logger, tracer=tracer)
+    app.logger.info(f'Getting users from controller: {ctlr}')
+    users = ctlr.get_users()
+    app.logger.info(f'Getting users from controller: {users} ')
+    return serialize_users(users)
 
 
-def redis_status():
-    s = {
-        "status": "OK"
-    }
-    try:
-        if os.environ.get("REDIS_URL", None) is not None:
-            r = redis.from_url(url=os.environ["REDIS_URL"])
-            s["url"] = os.environ.get("REDIS_URL")
+@app.route("/init")
+def init_data():
+    data = populate_initial_data()
+    return json.dumps(data)
 
-        elif os.environ.get("REDIS_HOST", None) is not None:
-            r = redis.Redis(host=os.environ["REDIS_HOST"],
-                            port=os.environ.get("REDIS_PORT", 6379),
-                            db=os.environ.get("REDIS_DB", 0))
-            s["host"] = os.environ.get("REDIS_HOST")
-            s["port"] = os.environ.get("REDIS_PORT")
-        else:
-            return "REDIS_URL or REDIS_HOST is not set"
-
-        if r.ping():
-            return s
-    except Exception as e:
-        return f'CONNECTION FAILED: {e}'

@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: fgray-otel-python-app
+  name: python-app
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: python-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app
+  namespace: fgray-otel-python-app
+  labels:
+    app: otel-python-app
+    app.kubernetes.io/name: python-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: python-app
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: otel-python-app
+        app.kubernetes.io/name: python-app
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: python-app
+        image: effgra/otel-python-app:v0.8.0
+        ports:
+          - containerPort: 8080
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+        imagePullPolicy: Always
+        env:
+        - name: FLASK_APP
+          value: app
+        - name: FLASK_PORT
+          value: "8080"
+        - name: MYSQL_HOST
+          value: mysql.fgray-otel-python-app.svc.cluster.local
+        - name: MYSQL_USER
+          value: hackweek
+        - name: MYSQL_PASSWORD
+          value: password
+        - name: MYSQL_DATABASE
+          value: hackweek
+        - name: REDIS_URL
+          value: redis://redis.fgray-otel-python-app.svc.cluster.local:6379/0
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: fgray-otel-python-app
+  name: otel-python-app-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: fgray-otel-python-app
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '10'
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/subnets: subnet-090e56da1a4bddc89, subnet-0552d44d6c4ad2bcc, subnet-0e711b4f9dfd18480
+    alb.ingress.kubernetes.io/security-groups: sg-084b80c1e42c83772, sg-06edaf50f7844aceb
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: python-app
+              port:
+                number: 8080
