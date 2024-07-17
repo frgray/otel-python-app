@@ -2,7 +2,12 @@
 
 export PATH="/opt/site/.local/bin:$PATH"
 BASE_DIR="/opt/site/code"
-CMD="opentelemetry-instrument flask --app app run -h 0.0.0.0 -p ${FLASK_PORT}"
+CMD="opentelemetry-instrument \
+    --traces_exporter console \
+    --metrics_exporter console \
+    --logs_exporter console \
+    --service_name otel-python-app \
+    flask --app app run -h 0.0.0.0 -p ${FLASK_PORT}"
 
 sigterm() {
   echo "SIGTERM received"

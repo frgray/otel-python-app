@@ -9,6 +9,7 @@ tracer = trace.get_tracer("otel-python-app")
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class RedisConfig(object):
     def __init__(self):

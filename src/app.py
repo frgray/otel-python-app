@@ -10,7 +10,7 @@ from opentelemetry.sdk.trace.export import (
     ConsoleSpanExporter,
 )
 
-from .lib.redis import redis_status
+from .lib.redis import redis_status, RedisClient
 from .lib.mysql import mysql_status, populate_initial_data
 from .lib.users import UserController
 from .lib.util import serialize_users
@@ -65,6 +65,15 @@ def get_users():
     users = ctlr.get_users()
     app.logger.info(f'Getting users from controller: {users} ')
     return serialize_users(users)
+
+
+@app.route("/flush")
+def flush_redis():
+    r = RedisClient()
+    r.delete_key('users')
+    return {
+        'status': 'OK',
+    }
 
 
 @app.route("/init")
