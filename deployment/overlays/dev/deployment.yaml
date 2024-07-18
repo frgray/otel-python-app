@@ -12,9 +12,6 @@ spec:
       labels:
         app: otel-python-app
         app.kubernetes.io/name: python-app
-      annotations:
-        instrumentation.opentelemetry.io/inject-python: "true"
-        instrumentation.opentelemetry.io/python-container-names: "python-app"
     spec:
       containers:
         - name: python-app
