@@ -14,8 +14,7 @@ spec:
         app.kubernetes.io/name: python-app
       annotations:
         instrumentation.opentelemetry.io/inject-python: "true"
-        instrumentation.opentelemetry.io/container-names: "python-app"
-        instrumentation.opentelemetry.io/python-app: "python-app"
+        instrumentation.opentelemetry.io/python-container-names: "python-app"
     spec:
       containers:
         - name: python-app
@@ -36,9 +35,4 @@ spec:
               value: env,host,os,serviceinstance
             - name: OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
               value: "true"
-#     OTEL_EXPORTER_OTLP_ENDPOINT: "http://grafana-k8s-monitoring-grafana-agent.grafana.svc.cluster.local:4318"
-#     OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
-#     OTEL_SERVICE_NAME: "fgray-otel-python-app"
-#     OTEL_TRACES_EXPORTER: "otlp"
-#     OTEL_METRICS_EXPORTER: "otlp"
-#     OTEL_NODE_RESOURCE_DETECTORS: "env,host,os,serviceinstance"
+
