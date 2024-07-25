@@ -1,29 +1,50 @@
+import os
 import json
 
 from flask import Flask
 from logging.config import dictConfig
 
-from opentelemetry import trace
+from opentelemetry import metrics, trace
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import (
-    BatchSpanProcessor,
-    ConsoleSpanExporter,
-)
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 
 from .lib.redis import redis_status, RedisClient
 from .lib.mysql import mysql_status, populate_initial_data
 from .lib.users import UserController
 from .lib.util import serialize_users
 
-provider = TracerProvider()
-processor = BatchSpanProcessor(ConsoleSpanExporter())
-provider.add_span_processor(processor)
+otel_service_name = os.environ.get("OTEL_SERVICE_NAME", "otel-python-app")
+otel_otlp_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", None)
+
+# Service name is required for most backends
+resource = Resource(attributes={
+    SERVICE_NAME: otel_service_name
+})
+
+traceProvider = TracerProvider(resource=resource)
+if otel_otlp_endpoint is None:
+    processor = BatchSpanProcessor(ConsoleSpanExporter())
+else:
+    processor = BatchSpanProcessor(OTLPSpanExporter(f'{otel_otlp_endpoint}/v1/traces'))
+traceProvider.add_span_processor(processor)
 
 # Sets the global default tracer provider
-trace.set_tracer_provider(provider)
+trace.set_tracer_provider(traceProvider)
+
+reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(endpoint=f'{otel_otlp_endpoint}/v1/traces')
+)
+
+meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+metrics.set_meter_provider(meterProvider)
 
 # Creates a tracer from the global tracer provider
-tracer = trace.get_tracer("otel-python-app")
+tracer = trace.get_tracer(otel_service_name)
 
 dictConfig({
     'version': 1,

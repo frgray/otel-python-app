@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 
 from dataclasses import dataclass
 from opentelemetry import trace
@@ -51,6 +52,7 @@ class UserController(object):
     def add_user(self, user: User):
         self.users.append(user)
 
+    @tracer.start_as_current_span("get-users-redis")
     def _get_users_redis(self) -> [User] or None:
         self.logger.debug(f'UserController._get_users_redis()')
         users = self.redis.get_dict(key='users')
@@ -65,9 +67,12 @@ class UserController(object):
         else:
             return None
 
+    @tracer.start_as_current_span("get-users-mysql")
     def _get_users_mysql(self) -> [User] or None:
         users = []
         self.logger.debug(f'UserController._get_users_mysql()')
+        # Simulate a slow query
+        time.sleep(2)
         with self.mysql.cursor() as cursor:
             cursor.execute("SELECT * FROM `users`")
             result = cursor.fetchall()
@@ -76,6 +81,7 @@ class UserController(object):
             users.append(User(id=row['id'], email=row['email'], firstName=row['firstName'], lastName=row['lastName']))
         return None if len(users) == 0 else users
 
+    @tracer.start_as_current_span("set-users-redis")
     def _cache_users(self, users: [User]) -> None:
         user_dict = {}
         self.logger.debug(f'UserController._cache_users(): users: {users}')
@@ -86,22 +92,15 @@ class UserController(object):
             self.redis.set_dict('users', user_dict)
         return None
 
+    @tracer.start_as_current_span("get-users")
     def get_users(self) -> [User]:
         self.logger.debug(f'UserController.get_users()')
-        with self.tracer.start_as_current_span("get-users") as span:
-            with self.tracer.start_as_current_span("get-users-redis") as redis_span:
-                cached_users = self._get_users_redis()
-                self.logger.debug(f'UserController.get_users() cached_users: {cached_users}')
-                if cached_users is None:
-                    with self.tracer.start_as_current_span("get-users-mysql") as mysql_span:
-                        users = self._get_users_mysql()
-                        self.logger.debug(f'UserController._get_users_mysql() users: {users}')
-                        with tracer.start_as_current_span("set-users-redis") as set_redis_span:
-                            self._cache_users(users)
-                        set_redis_span.end()
-                    mysql_span.end()
-                else:
-                    users = cached_users
-            redis_span.end()
-        span.end()
+        cached_users = self._get_users_redis()
+        self.logger.debug(f'UserController.get_users() cached_users: {cached_users}')
+        if cached_users is None:
+            users = self._get_users_mysql()
+            self.logger.debug(f'UserController._get_users_mysql() users: {users}')
+            self._cache_users(users)
+        else:
+            users = cached_users
         return users

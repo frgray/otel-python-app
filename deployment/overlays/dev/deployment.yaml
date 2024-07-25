@@ -4,13 +4,25 @@ metadata:
   name: python-app
   namespace: fgray-otel-python-app
   labels:
-    app: otel-python-app
+    trigger/app: otel-python-app
+    trigger/group: prodeng
+    trigger/environment: dev
+    trigger/location: us-east-2
+    trigger/product: platform
+    trigger/project: otel-python-app
+    trigger/provider: aws
     app.kubernetes.io/name: python-app
 spec:
   template:
     metadata:
       labels:
-        app: otel-python-app
+        trigger/app: otel-python-app
+        trigger/group: prodeng
+        trigger/environment: dev
+        trigger/location: us-east-2
+        trigger/product: platform
+        trigger/project: otel-python-app
+        trigger/provider: aws
         app.kubernetes.io/name: python-app
     spec:
       containers:
