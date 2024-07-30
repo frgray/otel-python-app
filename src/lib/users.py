@@ -1,5 +1,6 @@
 import json
 import logging
+import random
 import time
 
 from dataclasses import dataclass
@@ -57,6 +58,8 @@ class UserController(object):
         self.logger.debug(f'UserController._get_users_redis()')
         users = self.redis.get_dict(key='users')
         self.logger.debug(f'UserController._get_users_redis(): users: {users}')
+        if random.random() < 0.1:  # 10% chance
+            raise ValueError("This is an intentional error.")
         user_objects = []
         if len(users.keys()) != 0:
             for user in users:

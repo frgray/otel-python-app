@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-app
+  name: otel-python-app
   namespace: fgray-otel-python-app
   labels:
     trigger/app: otel-python-app
@@ -11,7 +11,7 @@ metadata:
     trigger/product: platform
     trigger/project: otel-python-app
     trigger/provider: aws
-    app.kubernetes.io/name: python-app
+    app.kubernetes.io/name: otel-python-app
 spec:
   template:
     metadata:
@@ -23,10 +23,10 @@ spec:
         trigger/product: platform
         trigger/project: otel-python-app
         trigger/provider: aws
-        app.kubernetes.io/name: python-app
+        app.kubernetes.io/name: otel-python-app
     spec:
       containers:
-        - name: python-app
+        - name: otel-python-app
           env:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: service.name=otel-python-app

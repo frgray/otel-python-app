@@ -1,7 +1,9 @@
 blinker==1.8.2
 certifi==2024.7.4
+cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
+cryptography==43.0.0
 Deprecated==1.2.14
 Flask==3.0.3
 googleapis-common-protos==1.63.2
@@ -28,6 +30,7 @@ opentelemetry-semantic-conventions==0.47b0
 opentelemetry-util-http==0.47b0
 packaging==24.1
 protobuf==4.25.4
+pycparser==2.22
 PyMySQL==1.1.1
 redis==5.0.7
 requests==2.32.3
