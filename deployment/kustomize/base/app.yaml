@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: fgray-otel-python-app
-  name: python-app
+  name: otel-python-app
 spec:
   ports:
     - port: 8080
@@ -11,30 +11,30 @@ spec:
       protocol: TCP
   type: NodePort
   selector:
-    app.kubernetes.io/name: python-app
+    app.kubernetes.io/name: otel-python-app
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-app
+  name: otel-python-app
   namespace: fgray-otel-python-app
   labels:
     app: otel-python-app
-    app.kubernetes.io/name: python-app
+    app.kubernetes.io/name: otel-python-app
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: python-app
+      app.kubernetes.io/name: otel-python-app
   replicas: 3
   template:
     metadata:
       labels:
         app: otel-python-app
-        app.kubernetes.io/name: python-app
+        app.kubernetes.io/name: otel-python-app
     spec:
       restartPolicy: Always
       containers:
-      - name: python-app
+      - name: otel-python-app
         image: effgra/otel-python-app:v0.8.0
         ports:
           - containerPort: 8080
@@ -69,6 +69,7 @@ metadata:
   namespace: fgray-otel-python-app
   name: otel-python-app-ingress
   annotations:
+    external-dns.alpha.kubernetes.io/hostname: otel-python-app.dev.instplat.io
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/load-balancer-name: fgray-otel-python-app
@@ -83,12 +84,13 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - http:
+    - host: otel-python-app.dev.instplat.io
+      http:
         paths:
         - path: /
           pathType: Prefix
           backend:
             service:
-              name: python-app
+              name: otel-python-app
               port:
                 number: 8080

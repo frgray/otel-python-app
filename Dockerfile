@@ -1,5 +1,12 @@
 FROM --platform=linux/amd64 python:3.10-slim
 
+#ARG GIT_SHA
+#ARG GIT_USER
+#
+#LABEL repo=frgray/otel-python-app \
+#    buildsha=${GIT_SHA} \
+#    username=${GIT_USER}
+
 SHELL ["/bin/bash", "-c"]
 
 USER root

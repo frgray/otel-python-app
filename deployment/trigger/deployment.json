@@ -1,0 +1,21 @@
+{
+  "group": "sandbox",
+  "product": "otel-python-app",
+  "description": "My first deployment.",
+  "environment": "dev",
+  "location": "us-east-2",
+  "replicas": 1,
+  "containers": [
+    "effgra/otel-python-app:v0.19.0"
+  ],
+  "ports": [
+    {
+      "publicPort": 443,
+      "targetPort": 8080,
+      "healthCheck": "/healthz",
+      "backendProtocol": "http"
+    }
+  ],
+  "publicLB": true,
+  "contact": "francisco.gray@instructure.com"
+}
