@@ -58,6 +58,8 @@ class UserController(object):
         self.logger.debug(f'UserController._get_users_redis()')
         users = self.redis.get_dict(key='users')
         self.logger.debug(f'UserController._get_users_redis(): users: {users}')
+
+        # Simulate a random error
         if random.random() < 0.1:  # 10% chance
             raise ValueError("This is an intentional error.")
         user_objects = []
@@ -74,6 +76,7 @@ class UserController(object):
     def _get_users_mysql(self) -> [User] or None:
         users = []
         self.logger.debug(f'UserController._get_users_mysql()')
+
         # Simulate a slow query
         time.sleep(2)
         with self.mysql.cursor() as cursor:
