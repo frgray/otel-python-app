@@ -13,7 +13,7 @@ on:
       - reopened         # closed pull request is reopened
     branches:
       - main
-      
+
 permissions:
   id-token: write
   contents: read
@@ -27,8 +27,8 @@ jobs:
         id: configure-aws-credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::xxxxxxxxxxxx:role/gh-trigger-hello-world
-          role-session-name: gh-trigger-hello-world
+          role-to-assume: arn:aws:iam::061039789061:role/github-actions/otel-python-app
+          role-session-name: gh-otel-python-app
           aws-region: us-east-2
 
       - name: Login to Amazon ECR
@@ -39,11 +39,11 @@ jobs:
         uses: instructure-actions/trigger-deployment-pipeline@latest
         with:
           GROUP: plateng
-          PRODUCT: trigger
-          SERVICE: trigger-hello-world
+          PRODUCT: otel-python-app
+          SERVICE: otel-python-app
           PLATFORM_ARCH: linux/amd64
           GH_PAT: ${{ secrets.GH_PAT }}
-          ECR_REGISTRY: xxxxxxxxxxxx.dkr.ecr.us-east-2.amazonaws.com
+          ECR_REGISTRY: 061039789061.dkr.ecr.us-east-2.amazonaws.com
           TRIGGER_URL: https://api.trigger.prod.inseng.io
           TRIGGER_API_KEY: ${{ secrets.TRIGGER_API_KEY }}
           TRIGGER_MODE: CI
