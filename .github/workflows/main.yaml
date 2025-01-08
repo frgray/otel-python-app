@@ -36,7 +36,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker Image, Vulnerabilities Scan, Push to ECR, Post Metadata
-        uses: instructure-actions/trigger-deployment-pipeline@latest
+        uses: instructure-actions/trigger-deployment-pipeline@v1.1.25
         with:
           GROUP: plateng
           PRODUCT: otel-python-app
