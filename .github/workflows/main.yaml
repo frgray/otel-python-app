@@ -1,9 +1,19 @@
-name: Build and Push Docker Image
-author: Francisco Gray, <francisco.gray@instructure.com>
+name: Main
+run-name: '${{ github.workflow }}: ${{ github.ref_name }}'
 
 on:
   push:
-
+    branches:
+      - main
+  pull_request:
+    types:
+      - assigned         # a user is assigned to the pull request
+      - opened           # pull request is created
+      - synchronize      # commit(s) pushed to the pull request
+      - reopened         # closed pull request is reopened
+    branches:
+      - main
+      
 permissions:
   id-token: write
   contents: read
