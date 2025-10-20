@@ -1,0 +1,32 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: otel-python
+  name: otel-python-app-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: otel-python-app.dev.instplat.io
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: fgray-otel-python-app
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '10'
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/subnets: subnet-090e56da1a4bddc89, subnet-0552d44d6c4ad2bcc, subnet-0e711b4f9dfd18480
+    alb.ingress.kubernetes.io/security-groups: sg-084b80c1e42c83772, sg-06edaf50f7844aceb
+spec:
+  ingressClassName: alb
+  rules:
+    - host: otel-python-app.dev.instplat.io
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: otel-python-app
+              port:
+                number: 8080

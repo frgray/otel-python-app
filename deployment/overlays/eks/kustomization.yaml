@@ -1,0 +1,10 @@
+resources:
+  - ../../base
+
+patchesStrategicMerge:
+  - ingress.yaml
+
+images:
+  - name: effgra/otel-python-app
+    newName: effgra/otel-python-app
+    newTag: v0.22.0

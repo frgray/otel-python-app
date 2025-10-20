@@ -2,8 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: fgray-otel-python-app
+  namespace: otel-python
   name: redis
+  labels:
+    service_name: otel-python-app
 spec:
   ports:
     - port: 6379
@@ -16,8 +18,10 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: fgray-otel-python-app
+  namespace: otel-python
   name: redis
+  labels:
+    service_name: otel-python-app
 spec:
   selector:
     matchLabels:

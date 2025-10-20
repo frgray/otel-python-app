@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mysql-config
-  namespace: fgray-otel-python-app
+  namespace: otel-python
 data:
     MYSQL_HOST: "0.0.0.0"
     MYSQL_USER: hackweek
@@ -14,8 +14,10 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: fgray-otel-python-app
+  namespace: otel-python
   name: mysql
+  labels:
+    service_name: otel-python-app
 spec:
   ports:
     - port: 3306
@@ -28,8 +30,10 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: fgray-otel-python-app
+  namespace: otel-python
   name: mysql
+  labels:
+    service_name: otel-python-app
 spec:
   selector:
     matchLabels:

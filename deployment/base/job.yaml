@@ -1,0 +1,21 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init
+  namespace: otel-python
+spec:
+  template:
+    spec:
+      containers:
+        - name: init
+          image: busybox:1.28
+          imagePullPolicy: IfNotPresent
+          command:
+          - /bin/sh
+          - -c
+          - date; wget http://otel-python-app:8080/init
+      restartPolicy: Never
+
+
+  

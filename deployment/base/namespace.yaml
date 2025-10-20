@@ -2,4 +2,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: fgray-otel-python-app
+  name: otel-python

@@ -1,0 +1,73 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-python-app
+  namespace: otel-python
+  labels:
+    app: otel-python-app
+    environment: dev
+    app.kubernetes.io/name: otel-python-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-python-app
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: otel-python-app
+        environment: dev
+        app.kubernetes.io/name: otel-python-app
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: otel-python-app
+        image: effgra/otel-python-app:v0.8.0
+        ports:
+          - containerPort: 8080
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+        imagePullPolicy: Always
+        env:
+        - name: FLASK_APP
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: FLASK_APP
+        - name: FLASK_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: FLASK_PORT
+        - name: MYSQL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MYSQL_HOST
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MYSQL_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MYSQL_DATABASE
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: REDIS_URL
